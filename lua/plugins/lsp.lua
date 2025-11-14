@@ -52,7 +52,7 @@ return {
 
   -- Mason için otomatik kurulum
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     opts = {
       ensure_installed = {
         -- Language Servers
@@ -67,13 +67,14 @@ return {
         "docker-compose-language-service",
         "dockerfile-language-server",
         "emmet-ls",
+        -- NOT: jdtls, google-java-format, checkstyle lua/plugins/java.lua'da yönetiliyor
 
         -- Formatters
         "prettier",
         "stylua",
 
         -- Linters
-        "eslint_d",
+        "eslint_d"
       },
     },
   },
