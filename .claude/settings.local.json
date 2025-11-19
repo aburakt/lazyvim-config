@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \".\\install-windows.ps1\")",
+      "Bash(powershell.exe -Command \"Test-Path (Join-Path $env:USERPROFILE ''.wezterm.lua'')\")",
+      "Bash(powershell.exe -NoProfile -Command \"[System.IO.Directory]::Exists((Join-Path $env:LOCALAPPDATA ''nvim''))\")",
+      "Bash(powershell.exe -NoProfile -Command \"$destPath = Join-Path $env:LOCALAPPDATA ''nvim''; New-Item -ItemType Directory -Path $destPath -Force | Out-Null; Write-Output $destPath\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"./quick-install.ps1\")",
+      "Bash(powershell.exe -NoProfile -Command \". ''C:\\Users\\TEST\\Documents\\WindowsPowerShell\\Microsoft.PowerShell_profile.ps1''\")",
+      "Bash(powershell.exe -NoProfile -Command \". ''C:\\Users\\TEST\\Documents\\projects\\lazyvim-config\\wezterm\\powershell\\Microsoft.PowerShell_profile.ps1''\")",
+      "Bash(powershell.exe:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": false
+}

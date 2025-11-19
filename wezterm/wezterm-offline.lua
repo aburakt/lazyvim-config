@@ -1,6 +1,6 @@
--- WezTerm Konfigürasyon Dosyası
--- Bu dosya her WezTerm açılışında okunur ve ayarlarını uygular
--- Lua programlama diliyle yazılmıştır
+-- WezTerm Konfigürasyon Dosyası (ONPREM/Offline Optimized)
+-- Bu dosya ONPREM ortamlar için optimize edilmiştir
+-- Otomatik güncellemeler ve internet gerektiren özellikler kapatılmıştır
 
 -- WezTerm API'sini yükle
 local wezterm = require('wezterm')
@@ -294,9 +294,19 @@ if is_macos then
   config.native_macos_fullscreen_mode = false
 end
 
--- Otomatik Güncelleme Kontrolü
-config.check_for_updates = true
-config.check_for_updates_interval_seconds = 86400  -- Günde bir kez
+-- ============================================================================
+-- 🌐 ONPREM / OFFLINE ORTAM AYARLARI
+-- ============================================================================
+
+-- ONPREM: Otomatik güncelleme kontrolünü kapat
+config.check_for_updates = false
+
+-- ONPREM Notice: İlk açılışta kullanıcıya bilgi ver
+wezterm.on('window-config-reloaded', function(window, pane)
+  window:toast_notification('WezTerm ONPREM Mode',
+    'Auto-updates disabled. Running in offline mode.',
+    nil, 3000)
+end)
 
 -- ============================================================================
 -- 📱 TAB İSİMLENDİRME (CUSTOM TAB FORMAT)
@@ -308,10 +318,10 @@ wezterm.on('format-tab-title', function(tab, tabs, panes, config, hover, max_wid
   local title = pane.title
 
   -- Eğer tab'de bir dizin çalışıyorsa, dizin adını göster
-  if title:find('bash') or title:find('zsh') or title:find('fish') then
+  if title:find('bash') or title:find('zsh') or title:find('fish') or title:find('pwsh') or title:find('powershell') then
     local cwd = pane.current_working_dir
     if cwd then
-      title = cwd.file_path:match("([^/]+)/?$") or title
+      title = cwd.file_path:match("([^/\\]+)[/\\]?$") or title
     end
   end
 
@@ -333,10 +343,37 @@ config.front_end = 'WebGpu'  -- "WebGpu" veya "OpenGL"
 -- config.animation_fps = 1
 
 -- ============================================================================
+-- 💻 WINDOWS POWERSHELL AYARLARI
+-- ============================================================================
+
+-- Windows'ta varsayılan shell olarak PowerShell'i ayarla
+if is_windows then
+  -- PowerShell 7 (pwsh.exe) kullan
+  -- PowerShell 7 yüklü değilse, Windows PowerShell'e fallback olacak
+  config.default_prog = { 'pwsh.exe', '-NoLogo' }
+
+  -- Windows'ta Nerd Font rendering iyileştirmesi
+  config.freetype_load_target = 'Normal'
+  config.freetype_render_target = 'HorizontalLcd'
+
+  -- Windows Terminal benzeri görünüm
+  config.use_fancy_tab_bar = true
+
+  -- Windows'ta fare tekerleği hassasiyeti
+  config.alternate_buffer_wheel_scroll_speed = 3
+end
+
+-- ============================================================================
 -- 🎓 ÖĞRENME NOTLARI
 -- ============================================================================
 
 --[[
+
+  ONPREM/OFFLINE MODE:
+  Bu WezTerm konfigürasyonu ONPREM ortamlar için optimize edilmiştir:
+  - Otomatik güncelleme kontrolleri devre dışı
+  - Tüm özellikler offline çalışır
+  - İnternet bağlantısı gerektirmez
 
   HIZLI BAŞLANGIÇ KLAVYE KISAYOLLARI:
   MOD = macOS'ta CMD, Windows/Linux'ta CTRL
@@ -359,74 +396,14 @@ config.front_end = 'WebGpu'  -- "WebGpu" veya "OpenGL"
     MOD+0          → Font boyutunu sıfırla
     MOD+P          → Komut paleti
 
-  ÖĞRENME YOLU:
-  1. İlk hafta: MOD+T ve MOD+W kullan, tab'leri alış
-  2. İkinci hafta: MOD+D ile split'leri dene
-  3. Üçüncü hafta: MOD+H/J/K/L ile Vim tarzı navigasyon
-
   CROSS-PLATFORM KULLANIM:
   - Bu config dosyası macOS, Windows ve Linux'ta çalışır
   - Modifier tuşu otomatik algılanır (macOS: CMD, Windows/Linux: CTRL)
-  - macOS'ta blur efekti, Windows'ta Acrylic efekti aktif
 
   WINDOWS'TA CONFIG DOSYASI KONUMU:
   - %USERPROFILE%\.wezterm.lua (C:\Users\YourName\.wezterm.lua)
-  - Bu dosyayı Windows'a kopyala, aynen çalışacak
-
-  ÖZELLEŞTIRME İPUCU:
-  - config.color_scheme = 'başka tema' ile temayı değiştirebilirsin
-  - config.font_size = 16.0 ile font boyutunu ayarlayabilirsin
-  - config.window_background_opacity = 1.0 ile şeffaflığı kapat
-
-  TEMALARARASINDAGEÇIŞ:
-  Terminal'de şunu çalıştır:
-    wezterm ls-fonts --list-system
-  Mevcut temaları görmek için WezTerm dokümanına bak:
-    https://wezfurlong.org/wezterm/colorschemes/
-
-  DAHA FAZLA BİLGİ:
-  - WezTerm dokümantasyon: https://wezfurlong.org/wezterm/
-  - Lua öğrenmek için: https://learnxinyminutes.com/docs/lua/
 
 ]]
-
--- ============================================================================
--- 💻 WINDOWS POWERSHELL AYARLARI (Unix-like Commands)
--- ============================================================================
-
--- Windows'ta varsayılan shell olarak PowerShell'i ayarla
-if is_windows then
-  -- PowerShell 7 (pwsh.exe) kullan
-  -- PowerShell 7 yüklü değilse, Windows PowerShell'e fallback olacak
-  config.default_prog = { 'pwsh.exe', '-NoLogo' }
-
-  -- PowerShell profil dosyasını otomatik yükle
-  -- Bu dosya Unix-like komutlar (ls, grep, cat, vb.) içerir
-  -- Profil konumu: %USERPROFILE%\Documents\PowerShell\Microsoft.PowerShell_profile.ps1
-  -- veya bu repo'daki wezterm/powershell/Microsoft.PowerShell_profile.ps1
-
-  -- Windows'ta Nerd Font rendering iyileştirmesi
-  config.freetype_load_target = 'Normal'
-  config.freetype_render_target = 'HorizontalLcd'
-
-  -- Windows Terminal benzeri görünüm
-  config.use_fancy_tab_bar = true
-
-  -- Windows'ta fare tekerleği hassasiyeti
-  config.alternate_buffer_wheel_scroll_speed = 3
-end
-
--- ============================================================================
--- 🌐 ONPREM / OFFLINE ORTAM AYARLARI
--- ============================================================================
-
--- Onprem ortam için özel ayarlar
--- Not: Tüm konfigürasyon offline çalışır, internet gerektirmez
--- Sadece otomatik güncelleme kontrolü kapatılabilir
-
--- Otomatik güncelleme kontrolünü kapat (onprem ortamlar için)
--- İsteğe bağlı: Bu satırı uncomment ederek açabilirsiniz
--- config.check_for_updates = false
 
 -- ============================================================================
 
