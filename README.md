@@ -10,6 +10,10 @@ Bu repo, kişisel LazyVim konfigürasyonlarımı içermektedir. Java Spring Boot
 - Lazygit entegrasyonu
 - Dashboard özelleştirmeleri
 - Özel keymaps ve autocmds
+- **WezTerm terminal emülatör konfigürasyonu** (Windows, macOS, Linux)
+  - PowerShell Unix-like komutlar desteği
+  - Cross-platform çalışan Lua konfigürasyonu
+  - Onprem/offline ortamlar için optimize edilmiş
 
 ## Windows On-Premise Kurulum
 
@@ -87,7 +91,7 @@ Bu repo, kişisel LazyVim konfigürasyonlarımı içermektedir. Java Spring Boot
 ### Konfigürasyon Yapısı
 
 ```
-nvim/
+lazyvim-config/
 ├── init.lua                 # Ana başlangıç dosyası
 ├── lua/
 │   ├── config/
@@ -102,6 +106,11 @@ nvim/
 │       ├── lsp.lua         # LSP ayarları
 │       ├── spring-boot.lua # Spring Boot desteği
 │       └── extras.lua      # Ekstra eklentiler
+├── wezterm/
+│   ├── wezterm.lua         # WezTerm terminal konfigürasyonu
+│   ├── powershell/
+│   │   └── Microsoft.PowerShell_profile.ps1  # Unix-like komutlar
+│   └── WEZTERM_SETUP.md    # WezTerm kurulum rehberi
 ├── lazy-lock.json          # Plugin versiyonları
 └── lazyvim.json           # LazyVim ayarları
 ```
@@ -134,6 +143,111 @@ nvim
 - `JAVA_HOME` ortam değişkeninin doğru ayarlandığından emin olun
 - `JAVA_FIX_INSTRUCTIONS.md` ve `JAVA_SPRING_BOOT_SETUP.md` dosyalarına bakın
 
+---
+
+## WezTerm Terminal Emülatör Kurulumu
+
+Bu repo, modern ve güçlü bir terminal emülatörü olan **WezTerm** için cross-platform konfigürasyon içermektedir.
+
+### Özellikler
+
+- **Cross-platform**: Windows, macOS ve Linux'ta çalışır
+- **GPU hızlandırmalı**: Yüksek performans
+- **Unix-like komutlar**: Windows PowerShell'de `ls`, `grep`, `cat`, `touch` gibi komutlar
+- **Split ve Tab desteği**: Tmux/Screen benzeri özellikler, ek araç gerekmez
+- **Nerd Font desteği**: Icon ve özel karakter desteği
+- **Onprem uyumlu**: Kısıtlı internet ortamlarında çalışır
+
+### Hızlı Kurulum
+
+#### Windows
+
+```powershell
+# WezTerm kurulumu (WinGet ile)
+winget install wez.wezterm
+
+# Config dosyasını kopyalayın
+Copy-Item wezterm/wezterm.lua $env:USERPROFILE\.wezterm.lua
+
+# PowerShell profil dosyasını kurun (Unix-like komutlar için)
+$profilePath = "$env:USERPROFILE\Documents\PowerShell"
+New-Item -ItemType Directory -Path $profilePath -Force
+Copy-Item wezterm/powershell/Microsoft.PowerShell_profile.ps1 $profilePath\Microsoft.PowerShell_profile.ps1
+
+# Execution Policy ayarlayın (Yönetici PowerShell'de)
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+#### macOS
+
+```bash
+# WezTerm kurulumu
+brew install --cask wezterm
+
+# Config dosyasını kopyalayın (symlink önerilir)
+ln -s $(pwd)/wezterm/wezterm.lua ~/.wezterm.lua
+
+# Nerd Font kurulumu
+brew tap homebrew/cask-fonts
+brew install --cask font-caskaydia-cove-nerd-font
+```
+
+#### Linux
+
+```bash
+# Ubuntu/Debian için WezTerm kurulumu
+curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /usr/share/keyrings/wezterm-fury.gpg
+echo 'deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list
+sudo apt update && sudo apt install wezterm
+
+# Config dosyasını kopyalayın
+ln -s $(pwd)/wezterm/wezterm.lua ~/.wezterm.lua
+```
+
+### Detaylı Kurulum ve Özelleştirme
+
+Tüm detaylar için **[wezterm/WEZTERM_SETUP.md](wezterm/WEZTERM_SETUP.md)** dosyasına bakın. Bu dokümanda şunları bulabilirsiniz:
+
+- Adım adım kurulum talimatları (Windows, macOS, Linux)
+- Onprem/offline ortamlar için özel kurulum
+- PowerShell profil kurulumu (Unix-like komutlar)
+- Nerd Font kurulumu ve yapılandırması
+- Tema ve görünüm özelleştirme
+- Klavye kısayolları
+- Sorun giderme
+
+### Klavye Kısayolları (WezTerm)
+
+| Windows/Linux | macOS | Açıklama |
+|---------------|-------|----------|
+| `CTRL+T` | `CMD+T` | Yeni tab aç |
+| `CTRL+D` | `CMD+D` | Dikey split |
+| `CTRL+SHIFT+D` | `CMD+SHIFT+D` | Yatay split |
+| `CTRL+H/J/K/L` | `CMD+H/J/K/L` | Split'ler arası gezinme (Vim tarzı) |
+| `CTRL+W` | `CMD+W` | Tab/Pane kapat |
+| `CTRL+1/2/3` | `CMD+1/2/3` | İlgili tab'a git |
+
+### Unix-like PowerShell Komutları (Windows)
+
+PowerShell profilimiz sayesinde Windows'ta şu Unix komutlarını kullanabilirsiniz:
+
+```powershell
+ls, ll, la      # Dosya listele
+cd, .., ...     # Dizin değiştir
+mkdir, touch    # Dosya/dizin oluştur
+rm, cp, mv      # Dosya işlemleri
+cat, head, tail # Dosya içeriği
+grep, find      # Arama
+which           # Komut yolu
+ps, kill        # Process yönetimi
+env, export     # Ortam değişkenleri
+gs, ga, gc, gp  # Git kısayolları
+```
+
+Komut listesi için PowerShell'de `show-aliases` yazın.
+
+---
+
 ## Güncelleme
 
 Konfigürasyonları güncellemek için:
@@ -158,6 +272,13 @@ MIT License - Detaylar için `LICENSE` dosyasına bakın.
 
 ## Kaynaklar
 
+### Neovim & LazyVim
 - [LazyVim Dokümantasyonu](https://lazyvim.github.io/)
 - [Neovim Dokümantasyonu](https://neovim.io/doc/)
 - [Lazy.nvim Plugin Manager](https://github.com/folke/lazy.nvim)
+
+### WezTerm
+- [WezTerm Resmi Dokümantasyon](https://wezfurlong.org/wezterm/)
+- [WezTerm Color Schemes](https://wezfurlong.org/wezterm/colorschemes/)
+- [Nerd Fonts](https://www.nerdfonts.com/)
+- [PowerShell Dokümantasyonu](https://docs.microsoft.com/en-us/powershell/)
